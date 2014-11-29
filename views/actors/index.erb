@@ -8,18 +8,47 @@
     <header>
       <h1>ACTORS!</h1>
     </header>
+    <form action='/' method='GET'>
+      <button type='submit'>Back to Home</button>
+    </form>
+    <form action='/actors' method='GET'>
+      <input type='Text' name='actor_search' size='' placeholder='ex: Joseph Cross' >
+      <button type='submit'>Search</button>
+    </form>
 
     <selection>
         <ul>
-          <% @actors.each do |actor| %>
-
-          <li>
-            <a href='/actors/<%= actor['id'] %>'><%= actor['name'] %></a>
-          </li>
-          <% end %>
+          <% if @actor_search == nil %>
+            <% @actors.each do |actor| %>
+              <li>
+                <a href='/actors/<%= actor['id'] %>'><%= actor['name'] %></a>
+              </li>
+            <% end %>
         </ul>
-    </selection>
+          <% else %>
+            <% @actors.each do |actor| %>
+              <% if actor['name'].downcase.include?(@actor_search.downcase) %>
+                <li>
+                  <a href='/actors/<%= actor['id'] %>'><%= actor['name'] %></a>
+                </li>
+              <% end %>
+          <% end %>
+        <% end %>
 
+    </selection>
+      <span>
+        <div>
+          <% if params["page"].to_i > 1 %>
+          <a href="/actors?page=<%= @page_num - 1 %>"> Previous Page </a>
+          <% end %>
+          |
+          <% if params["page"].to_i == 0 %>
+          <a href="/actors?page=<%= @page_num + 2 %>"> Next Page </a>
+          <% else %>
+          <a href="/actors?page=<%= @page_num + 1 %>"> Next Page </a>
+          <% end %>
+        </div>
+      </span>
   </div>
 </body>
 </html>

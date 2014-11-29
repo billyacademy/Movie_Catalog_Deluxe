@@ -21,12 +21,20 @@ end
 ####### ACTOR METHODS ########
 ##############################
 
-def get_actors
+def get_actors(page_num)
+  if page_num.to_i < 1
+    offset = 0
+  else
+    offset = page_num.to_i * 20 - 20
+  end
+
   sql = 'SELECT name, id FROM actors
-  ORDER BY name'
+  ORDER BY name
+  LIMIT 20
+  OFFSET $1'
 
   @actors = db_connection do |db|
-    db.exec(sql)
+    db.exec(sql, [offset])
   end
   @actors.to_a
 end
@@ -45,9 +53,21 @@ def find_actor_by_id(id)
   @actors_id.to_a
 end
 
+def search_actors
+  sql = "SELECT actors.name
+  FROM actors
+  ORDER BY actors.name"
+
+  actors = db_connection do |db|
+    db.exec(sql)
+  end
+  actors.to_a
+end
+
 ##############################
 ####### MOVIE METHODS ########
 ##############################
+
 
 def search_movies
   sql = "SELECT title, id
@@ -114,7 +134,10 @@ get '/' do
 end
 
 get '/actors' do
-  @actors = get_actors
+  @page_num = params['page'].to_i || 1
+  @actors = get_actors(@page_num)
+  @actor_search = params["actor_search"]
+  @search_actors = search_actors
 
   erb :'/actors/index'
 end
